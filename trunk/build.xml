@@ -85,7 +85,7 @@
 
 	<target name="test-run" depends="test-compile">
 		<jacoco:coverage>
-			<junit fork="true" forkmode="once" failureProperty="test.failed" timeout="300000">
+			<junit fork="true" forkmode="once" timeout="300000">
 				<jvmarg value="-ea" />
 				<classpath refid="test.execute.classpath" />
 				<formatter type="brief" usefile="false" />
@@ -103,7 +103,6 @@
 				<param name="TITLE" expression="JUnit Report for GMC ${revision}" />
 			</report>
 		</junitreport>
-		<fail message="Tests failed. Check log and/or reports." if="test.failed" />
 	</target>
 
 	<target name="test" depends="test-run">
