@@ -16,7 +16,6 @@ public class GMCTest {
 
 	@Test
 	public void test() {
-
 	}
 
 }
