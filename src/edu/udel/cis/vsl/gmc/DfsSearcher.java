@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Stack;
 
 /**
@@ -30,7 +30,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 	private int numStatesSeen = 1;
 
-	private PrintWriter debugOut;
+	private PrintStream debugOut;
 
 	private boolean debugging = false;
 
@@ -41,7 +41,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	public DfsSearcher(
 			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
 			StateManagerIF<STATE, TRANSITION> manager,
-			StatePredicateIF<STATE> predicate, PrintWriter debugOut) {
+			StatePredicateIF<STATE> predicate, PrintStream debugOut) {
 
 		if (enabler == null) {
 			throw new NullPointerException("null enabler");
@@ -256,14 +256,14 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		return debugging;
 	}
 
-	public void setDebugOut(PrintWriter out) {
+	public void setDebugOut(PrintStream out) {
 		if (out == null) {
 			throw new NullPointerException("null out");
 		}
 		debugOut = out;
 	}
 
-	public PrintWriter getDebugOut() {
+	public PrintStream getDebugOut() {
 		return debugOut;
 	}
 
@@ -274,7 +274,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		}
 	}
 
-	public void printStack(PrintWriter out, boolean longFormat,
+	public void printStack(PrintStream out, boolean longFormat,
 			boolean summarize) {
 		int size = stack.size();
 
@@ -315,7 +315,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		out.flush();
 	}
 
-	public void printStack(PrintWriter out) {
+	public void printStack(PrintStream out) {
 		if (name != null)
 			out.print(name + " ");
 		out.println("Trace summary:\n");
@@ -359,7 +359,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		return numStatesMatched;
 	}
 
-	public void printSummary(PrintWriter out) {
+	public void printSummary(PrintStream out) {
 		out.println("Number of states seen:    " + numStatesSeen);
 		out.println("Number of transitions:   " + numTransitions);
 		out.println("Number of states matched: " + numStatesMatched + "\n");

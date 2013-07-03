@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * An Enabler tells you which transitions should be explored from a given state.
@@ -48,7 +48,7 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	TRANSITION peek(TRANSITIONSEQUENCE sequence);
 
-	void print(PrintWriter out, TRANSITIONSEQUENCE sequence);
+	void print(PrintStream out, TRANSITIONSEQUENCE sequence);
 
 	/**
 	 * Prints some representation of the transitions remaining after removing
@@ -57,20 +57,20 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * @param out
 	 * @param sequence
 	 */
-	void printRemaining(PrintWriter out, TRANSITIONSEQUENCE sequence);
+	void printRemaining(PrintStream out, TRANSITIONSEQUENCE sequence);
 
 	void setDebugging(boolean value);
 
 	boolean debugging();
 
-	void setDebugOut(PrintWriter out);
+	void setDebugOut(PrintStream out);
 
-	PrintWriter getDebugOut();
+	PrintStream getDebugOut();
 
 	/**
 	 * Prints the current first transition in the sequence, preceded by the
 	 * index of the transition within the sequence.
 	 */
-	void printFirstTransition(PrintWriter out, TRANSITIONSEQUENCE sequence);
+	void printFirstTransition(PrintStream out, TRANSITIONSEQUENCE sequence);
 
 }
