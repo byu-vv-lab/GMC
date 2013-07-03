@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 
 public interface StateManagerIF<STATE, TRANSITION> {
 
@@ -14,16 +14,16 @@ public interface StateManagerIF<STATE, TRANSITION> {
 
 	boolean onStack(STATE State);
 
-	void printStateShort(PrintWriter out, STATE state);
+	void printStateShort(PrintStream out, STATE state);
 
-	void printStateLong(PrintWriter out, STATE state);
+	void printStateLong(PrintStream out, STATE state);
 
-	void printTransitionShort(PrintWriter out, TRANSITION transition);
+	void printTransitionShort(PrintStream out, TRANSITION transition);
 
-	void printTransitionLong(PrintWriter out, TRANSITION transition);
+	void printTransitionLong(PrintStream out, TRANSITION transition);
 
-	void printAllStatesShort(PrintWriter out);
+	void printAllStatesShort(PrintStream out);
 
-	void printAllStatesLong(PrintWriter out);
+	void printAllStatesLong(PrintStream out);
 
 }
