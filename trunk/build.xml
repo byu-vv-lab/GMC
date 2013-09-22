@@ -60,12 +60,14 @@
 		<pathelement location="${test.src.dir}" />
 		<pathelement location="${bin.dir}" />
 		<pathelement location="${junit.jar}" />
+		<pathelement location="${hamcrest.jar}" />
 	</path>
 
 	<path id="test.execute.classpath">
 		<pathelement location="${test.bin.dir}" />
 		<pathelement location="${bin.dir}" />
 		<pathelement location="${junit.jar}" />
+		<pathelement location="${hamcrest.jar}" />
 	</path>
 
 	<target name="test-init">
