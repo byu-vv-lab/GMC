@@ -73,4 +73,20 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	void printFirstTransition(PrintStream out, TRANSITIONSEQUENCE sequence);
 
+	/**
+	 * Did the original sequence (before calls to next) have more than one
+	 * element?
+	 * 
+	 * @return true iff sequence had at least 2 elements
+	 */
+	boolean hasMultiple(TRANSITIONSEQUENCE sequence);
+
+	/**
+	 * Returns the number of transitions that have been removed from this
+	 * sequence since it was created.
+	 * 
+	 * @return the number of transitions removed
+	 */
+	int numRemoved(TRANSITIONSEQUENCE sequence);
+
 }
