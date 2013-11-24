@@ -1,5 +1,7 @@
 package edu.udel.cis.vsl.gmc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Stack;
 
@@ -365,4 +367,38 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		out.println("Number of states matched: " + numStatesMatched + "\n");
 		out.flush();
 	}
+
+	public void saveStack(File file) throws FileNotFoundException {
+		PrintStream stream = new PrintStream(file);
+		int size = stack.size();
+
+		for (int i = 0; i < size; i++) {
+			TRANSITIONSEQUENCE sequence = stack.elementAt(i);
+
+			if (enabler.hasMultiple(sequence)) {
+				int index = enabler.numRemoved(sequence);
+
+				stream.println(index);
+			}
+		}
+		stream.flush();
+		stream.close();
+	}
+
+	public int logError(Exception exception) {
+		// need to have a directory in which traces are stored (File)
+		// need to have a way to name the traces (prefix String)
+		// returns the number of errors logged
+		// prints message about name of tracefile.
+		// keeps errors in hash table
+		// prioritizes errors (Comparator)
+		return 0;
+	}
+	
+	public void printLog(PrintStream out) {
+		// search should do this at end: in both directory
+		// and out.
+		// commands: civl replay, civl replay N,
+	}
+
 }
