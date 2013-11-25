@@ -2,6 +2,7 @@ package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.SortedMap;
@@ -15,6 +16,8 @@ import java.util.TreeMap;
  * 
  */
 public class ErrorLog {
+
+	// TODO: need to add error bound and throw of excessive error exception
 
 	// Instance fields...
 
@@ -53,9 +56,13 @@ public class ErrorLog {
 	 * Total number of errors that can be reported before this log thrown an
 	 * ExcessiveErrorException;
 	 */
-	private int errorBound = 10;
+	private int errorBound = 5;
+
+	private boolean searchTruncated = false;
 
 	private PrintStream out;
+
+	private File logFile;
 
 	/**
 	 * Creates new ErrorLog with given comparator
@@ -75,6 +82,7 @@ public class ErrorLog {
 		this.sessionName = sessionName;
 		this.entryMap = new TreeMap<>();
 		this.date = new Date();
+		this.logFile = new File(directory, sessionName + "_log.txt");
 	}
 
 	// Helper methods...
@@ -88,6 +96,21 @@ public class ErrorLog {
 	}
 
 	// Public methods...
+
+	public File getDirectory() {
+		return directory;
+	}
+
+	public File getLogFile() {
+		return logFile;
+	}
+
+	public void save() throws FileNotFoundException {
+		PrintStream stream = new PrintStream(new FileOutputStream(logFile));
+
+		print(stream);
+		stream.close();
+	}
 
 	public void setSearcher(DfsSearcher<?, ?, ?> searcher) {
 		this.searcher = searcher;
@@ -119,6 +142,7 @@ public class ErrorLog {
 		out.println("Date............... " + date);
 		out.println("numErrors.......... " + numErrors);
 		out.println("numDistinctErrors.. " + entryMap.size());
+		out.println("search truncated... " + searchTruncated);
 		out.println();
 		for (LogEntry entry : entryMap.values()) {
 			entry.print(out);
@@ -126,7 +150,7 @@ public class ErrorLog {
 		}
 	}
 
-	// add another argument preamble which has a method "print"
+	// TODO: add another argument preamble which has a method "print"
 	// to print a prefix to the file...
 
 	public void report(LogEntry entry) throws FileNotFoundException {
@@ -171,6 +195,10 @@ public class ErrorLog {
 			searcher.saveStack(file);
 		}
 		numErrors++;
+		if (numErrors >= errorBound) {
+			searchTruncated = true;
+			throw new ExcessiveErrorException(errorBound);
+		}
 	}
 
 }
