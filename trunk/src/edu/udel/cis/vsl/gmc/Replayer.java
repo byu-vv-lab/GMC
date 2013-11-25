@@ -8,6 +8,9 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
+// TODO: perhaps allow preamble to trace file with options
+// encoded in some standard way
+
 /**
  * A Replayer is used to replay an execution trace of a transition system. The
  * trace is typically stored in a file created by method
