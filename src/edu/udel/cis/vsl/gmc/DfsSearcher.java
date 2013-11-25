@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.Stack;
 
 /**
- * A DfsSearcher performs a simple depth-first search of the state space of a
+ * A DfsSearcher performs a depth-first search of the state space of a
  * transition system, stopping immediately if it finds a state satisfying the
  * given predicate. A DfsSearcher is instantiated with a given enabler (an
  * object which tells what transitions to explore from a given state), a state
@@ -384,21 +384,4 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		stream.flush();
 		stream.close();
 	}
-
-	public int logError(Exception exception) {
-		// need to have a directory in which traces are stored (File)
-		// need to have a way to name the traces (prefix String)
-		// returns the number of errors logged
-		// prints message about name of tracefile.
-		// keeps errors in hash table
-		// prioritizes errors (Comparator)
-		return 0;
-	}
-	
-	public void printLog(PrintStream out) {
-		// search should do this at end: in both directory
-		// and out.
-		// commands: civl replay, civl replay N,
-	}
-
 }
