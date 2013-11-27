@@ -1,5 +1,9 @@
 /**
- * Provides generic model checking functionality.
+ * This package provides generic model checking functionality.
+ * It is intended to be used as a set of utilities for constructing
+ * model checking applications.
+ * 
+ * Some of the services provided include:
  * 
  * <ul>
  * <li><strong>depth-first search</strong> of an arbitrary state-transition

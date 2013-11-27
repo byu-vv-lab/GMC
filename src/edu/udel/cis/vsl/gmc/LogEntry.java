@@ -105,12 +105,12 @@ public abstract class LogEntry implements Comparable<LogEntry> {
 	 * 
 	 * @return the length of the trace
 	 */
-	public int getSize() {
+	public int getLength() {
 		return size;
 	}
 
 	/**
-	 * Sets the length of the traace.
+	 * Sets the length of the trace.
 	 * 
 	 * @param size
 	 *            length of trace
