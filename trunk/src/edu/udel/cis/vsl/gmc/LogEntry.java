@@ -29,9 +29,17 @@ public abstract class LogEntry implements Comparable<LogEntry> {
 	private File traceFile;
 
 	/**
+	 * The configuration to use when replaying the trace. Might be same as
+	 * original configuration used to perform search, or might be obtained by
+	 * modifying that one. For example, might want to remove verbose flag.
+	 */
+	private GMCConfiguration configuration;
+
+	/**
 	 * Default construtor: does nothing.
 	 */
-	public LogEntry() {
+	public LogEntry(GMCConfiguration configuration) {
+		this.configuration = configuration;
 	}
 
 	/**
@@ -65,6 +73,15 @@ public abstract class LogEntry implements Comparable<LogEntry> {
 	public abstract boolean equals(Object obj);
 
 	/**
+	 * Returns the configuration which will be used to replay the trace.
+	 * 
+	 * @return the configuration
+	 */
+	public GMCConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	/**
 	 * Retunrs the ID number of this log entry, which should be unique within
 	 * the log to which it belongs.
 	 * 
@@ -85,6 +102,11 @@ public abstract class LogEntry implements Comparable<LogEntry> {
 		this.id = id;
 	}
 
+	/**
+	 * Returns the file to which the trace is saved.
+	 * 
+	 * @return the file for the trace
+	 */
 	public File getTraceFile() {
 		return traceFile;
 	}

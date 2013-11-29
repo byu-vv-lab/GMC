@@ -223,6 +223,31 @@ public class ErrorLog {
 	// TODO: add another argument preamble which has a method "print"
 	// to print a prefix to the file...
 
+	private void writeTraceFile(LogEntry entry) throws FileNotFoundException {
+		File file = entry.getTraceFile();
+		PrintStream out = new PrintStream(file);
+
+		out.println("Session name....... " + sessionName);
+		out.println("Directory.......... " + directory);
+		out.println("Date............... " + date);
+		out.println("Trace ID........... " + entry.getId());
+		out.println("Error number....... " + numErrors);
+		out.println();
+		out.println("== Begin Error Message == ");
+		entry.print(out);
+		out.println("== End Error Message == ");
+		out.println();
+		out.println("== Begin Configuration ==");
+		entry.getConfiguration().print(out);
+		out.println("== End Configuration ==");
+		out.println();
+		out.println("== Begin Trace ==");
+		searcher.writeStack(out);
+		out.println("== End Trace ==");
+		out.flush();
+		out.close();
+	}
+
 	public void report(LogEntry entry) throws FileNotFoundException {
 		int length = searcher.stack().size();
 		LogEntry oldEntry = entryMap.get(entry);
@@ -246,7 +271,7 @@ public class ErrorLog {
 				entryMap.remove(entry);
 				entryMap.put(entry, entry);
 				file.delete();
-				searcher.saveStack(file);
+				writeTraceFile(entry);
 			} else {
 				out.println("Length of new trace (" + length
 						+ ") is greater than or equal to length of old ("
@@ -262,7 +287,7 @@ public class ErrorLog {
 			entry.setId(id);
 			entry.setSize(length);
 			entryMap.put(entry, entry);
-			searcher.saveStack(file);
+			writeTraceFile(entry);
 		}
 		numErrors++;
 		if (numErrors >= errorBound) {

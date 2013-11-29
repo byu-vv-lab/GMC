@@ -8,13 +8,10 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
-// TODO: perhaps allow preamble to trace file with options
-// encoded in some standard way
-
 /**
  * A Replayer is used to replay an execution trace of a transition system. The
  * trace is typically stored in a file created by method
- * {@link DfsSearcher#saveStack(File)}.
+ * {@link DfsSearcher#writeStack(File)}.
  * 
  * @author siegel
  * 
@@ -108,8 +105,20 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			String line = reader.readLine();
 
 			if (line == null)
+				throw new RuntimeException("Trace begin line not found");
+			line = line.trim();
+			if ("== Begin Trace==".equals(line))
+				break;
+		}
+
+		while (true) {
+			String line = reader.readLine();
+
+			if (line == null)
 				break; // end has been reached
 			line = line.trim(); // remove white space
+			if ("== End Trace==".equals(line))
+				break;
 			if (line.isEmpty())
 				continue; // skip blank line
 			try {
