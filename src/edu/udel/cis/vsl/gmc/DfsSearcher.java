@@ -1,7 +1,5 @@
 package edu.udel.cis.vsl.gmc;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Stack;
 
@@ -532,17 +530,13 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	}
 
 	/**
-	 * Saves the current stack in a persisten form to a file. This will create
-	 * the file if it doesn't exist, and overwrite it if it does exist. This
-	 * file can then be used later to "replay" the trace.
+	 * Write the state of the current stack in a condensed form that can be used
+	 * to replay the trace later.
 	 * 
-	 * @param file
-	 *            file to which to write the current state of the DFS stack
-	 * @throws FileNotFoundException
-	 *             if the file cannot be created or overwritten for some reason
+	 * @param stream
+	 *            stream to which to write the current state of the DFS stack
 	 */
-	public void saveStack(File file) throws FileNotFoundException {
-		PrintStream stream = new PrintStream(file);
+	public void writeStack(PrintStream stream) {
 		int size = stack.size();
 
 		for (int i = 0; i < size; i++) {
@@ -555,6 +549,5 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			}
 		}
 		stream.flush();
-		stream.close();
 	}
 }
