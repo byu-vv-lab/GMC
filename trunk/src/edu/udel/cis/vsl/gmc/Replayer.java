@@ -1,12 +1,7 @@
 package edu.udel.cis.vsl.gmc;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * A Replayer is used to replay an execution trace of a transition system. The
@@ -23,15 +18,9 @@ import java.util.List;
  *            the type for a sequence of transitions emanating from a single
  *            state
  */
-public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
+public class Replayer<STATE, TRANSITION> {
 
 	// Instance fields...
-
-	/**
-	 * The enabler: the object used to determine the set of enabled transitions
-	 * from any given state.
-	 */
-	private EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
 
 	/**
 	 * The state manager: the object used to determine the next state given a
@@ -65,99 +54,12 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            stream to which the trace should be written in human-readable
 	 *            form
 	 */
-	public Replayer(EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			StateManagerIF<STATE, TRANSITION> manager, PrintStream out) {
-		this.enabler = enabler;
+	public Replayer(StateManagerIF<STATE, TRANSITION> manager, PrintStream out) {
 		this.manager = manager;
 		this.out = out;
 	}
 
 	// Static methods....
-
-	private static void err(String message) {
-		throw new RuntimeException("Replay error: " + message);
-	}
-
-	/**
-	 * Creates a guide by parsing from the given buffered reader. This interface
-	 * is provided because the buffered reader may point to the middle of a
-	 * file. This is provided because the first part of the file might contain
-	 * some application-specific information (such as parameter values), and the
-	 * part containing the sequence of integers may start in the middle. This
-	 * will parse to the end of the file so expects to see a newline-separated
-	 * sequence of integers from the given point on. Closes the reader at the
-	 * end.
-	 * 
-	 * @param reader
-	 *            a buffered reader containing a newline-separated sequence of
-	 *            integers
-	 * @return the sequence of integers
-	 * @throws IOException
-	 *             if an error occurs in reading from or closing the buffered
-	 *             reader
-	 */
-	public static int[] makeGuide(BufferedReader reader) throws IOException {
-		List<Integer> intList = new LinkedList<Integer>();
-		int numInts, count;
-		int[] guide;
-
-		while (true) {
-			String line = reader.readLine();
-
-			if (line == null)
-				throw new RuntimeException("Trace begin line not found");
-			line = line.trim();
-			if ("== Begin Trace ==".equals(line))
-				break;
-		}
-
-		while (true) {
-			String line = reader.readLine();
-
-			if (line == null)
-				break; // end has been reached
-			line = line.trim(); // remove white space
-			if ("== End Trace ==".equals(line))
-				break;
-			if (line.isEmpty())
-				continue; // skip blank line
-			try {
-				int theInt = new Integer(line);
-
-				if (theInt < 0) {
-					err("Malformed trace file: transition index is negative: "
-							+ theInt);
-				}
-				intList.add(new Integer(theInt));
-			} catch (NumberFormatException e) {
-				err("Expected integer, saws " + line);
-			}
-		}
-		reader.close();
-		numInts = intList.size();
-		guide = new int[numInts];
-		count = 0;
-		for (Integer value : intList) {
-			guide[count] = value;
-			count++;
-		}
-		return guide;
-	}
-
-	/**
-	 * Creates a guide by parsing a file which is a newline-separated list of
-	 * integers.
-	 * 
-	 * @param file
-	 *            a newline-separated list of integers
-	 * @return the integers, as an array
-	 * @throws IOException
-	 *             if a problem occurs in opening, reading from, or closing the
-	 *             file
-	 */
-	public static int[] makeGuide(File file) throws IOException {
-		return makeGuide(new BufferedReader(new FileReader(file)));
-	}
 
 	// Instance methods: helpers...
 
@@ -214,7 +116,8 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            this array so that upon returning the array will hold the
 	 *            final states.
 	 * @param print
-	 *            which states should be printed. Array of length states.length.
+	 *            which states should be printed at a point when states will be
+	 *            printed. Array of length states.length.
 	 * @param names
 	 *            the names to use for the different executions. Array of length
 	 *            states.length
@@ -222,12 +125,12 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            sequence of integers used to guide execution when a state is
 	 *            reached that has more than one enabled transition. The initial
 	 *            state of index 0 is the one that will work with the guide
+	 * @throws MisguidedExecutionException
 	 */
 	public void play(STATE states[], boolean[] print, String[] names,
-			int guide[]) {
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
 		int numExecutions = states.length;
-		int guideLength = guide.length;
-		int guideIndex = 0;
 		int step = 0;
 		String[] executionNames = new String[numExecutions];
 
@@ -241,24 +144,10 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		}
 		printStates(step, numExecutions, executionNames, print, states);
 		while (true) {
-			TRANSITIONSEQUENCE sequence = enabler.enabledTransitions(states[0]);
-			TRANSITION transition;
+			TRANSITION transition = chooser.chooseEnabledTransition(states[0]);
 
-			if (!enabler.hasNext(sequence))
+			if (transition == null)
 				break;
-			transition = enabler.next(sequence);
-			if (enabler.hasMultiple(sequence)) {
-				int index;
-
-				if (guideIndex >= guideLength) {
-					out.println("Trail ends before execution terminates.");
-					break;
-				}
-				index = guide[guideIndex];
-				for (int i = 0; i < index; i++)
-					transition = enabler.next(sequence);
-				guideIndex++;
-			}
 			step++;
 			out.print("Step " + step + ": ");
 			manager.printTransitionLong(out, transition);
@@ -278,38 +167,28 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		out.println("Trace ends after " + step + " steps.");
 	}
 
-	public void play(STATE initialStates[], boolean[] print, String[] names,
-			File traceFile) throws IOException {
-		play(initialStates, print, names, makeGuide(traceFile));
-	}
-
-	public void play(STATE initialState, int[] guide) throws IOException {
+	public void play(STATE initialState,
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
 		STATE[] stateArray = (STATE[]) new Object[] { initialState };
 		boolean[] printArray = new boolean[] { true };
 		String[] names = new String[] { null };
 
-		play(stateArray, printArray, names, guide);
-	}
-
-	public void play(STATE initialState, File traceFile) throws IOException {
-		play(initialState, makeGuide(traceFile));
+		play(stateArray, printArray, names, chooser);
 	}
 
 	public void play(STATE initialSymbolicState, STATE initialConcreteState,
-			boolean printSymbolicStates, int[] guide) {
+			boolean printSymbolicStates,
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
 		STATE[] stateArray = (STATE[]) new Object[] { initialSymbolicState,
 				initialConcreteState };
 		boolean[] printArray = new boolean[] { printSymbolicStates, true };
 		String[] names = new String[] { "Symbolic", "Concrete" };
 
-		play(stateArray, printArray, names, guide);
+		play(stateArray, printArray, names, chooser);
 	}
 
-	public void play(STATE initialSymbolicState, STATE initialConcreteState,
-			boolean printSymbolicStates, File traceFile) throws IOException {
-		play(initialSymbolicState, initialConcreteState, printSymbolicStates,
-				makeGuide(traceFile));
-	}
 }
