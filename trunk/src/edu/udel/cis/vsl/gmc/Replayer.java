@@ -107,7 +107,7 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			if (line == null)
 				throw new RuntimeException("Trace begin line not found");
 			line = line.trim();
-			if ("== Begin Trace==".equals(line))
+			if ("== Begin Trace ==".equals(line))
 				break;
 		}
 
@@ -117,7 +117,7 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			if (line == null)
 				break; // end has been reached
 			line = line.trim(); // remove white space
-			if ("== End Trace==".equals(line))
+			if ("== End Trace ==".equals(line))
 				break;
 			if (line.isEmpty())
 				continue; // skip blank line
@@ -181,7 +181,8 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			boolean[] print, STATE[] states) {
 		for (int i = 0; i < numStates; i++) {
 			if (print[i]) {
-				out.println("State " + step + executionNames[i] + ":");
+				// out.println("State " + step + executionNames[i] + ":");
+				out.println();
 				manager.printStateLong(out, states[i]);
 				out.println();
 			}
@@ -271,6 +272,10 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			if (printAllStates)
 				printStates(step, numExecutions, executionNames, print, states);
 		}
+		// always print the last state:
+		if (!printAllStates)
+			printStates(step, numExecutions, executionNames, print, states);
+		out.println("Trace ends after " + step + " steps.");
 	}
 
 	public void play(STATE initialStates[], boolean[] print, String[] names,
@@ -278,19 +283,17 @@ public class Replayer<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		play(initialStates, print, names, makeGuide(traceFile));
 	}
 
-	public void play(STATE initialState, boolean print, int[] guide)
-			throws IOException {
+	public void play(STATE initialState, int[] guide) throws IOException {
 		@SuppressWarnings("unchecked")
 		STATE[] stateArray = (STATE[]) new Object[] { initialState };
-		boolean[] printArray = new boolean[] { print };
+		boolean[] printArray = new boolean[] { true };
 		String[] names = new String[] { null };
 
 		play(stateArray, printArray, names, guide);
 	}
 
-	public void play(STATE initialState, boolean print, File traceFile)
-			throws IOException {
-		play(initialState, print, makeGuide(traceFile));
+	public void play(STATE initialState, File traceFile) throws IOException {
+		play(initialState, makeGuide(traceFile));
 	}
 
 	public void play(STATE initialSymbolicState, STATE initialConcreteState,
