@@ -44,7 +44,8 @@ public class ErrorLog {
 	// Instance fields...
 
 	/**
-	 * The searcher performing the search.
+	 * The searcher performing the search. May be null, in which case traces
+	 * won't be saved, etc.
 	 */
 	private DfsSearcher<?, ?, ?> searcher;
 
@@ -220,9 +221,6 @@ public class ErrorLog {
 		}
 	}
 
-	// TODO: add another argument preamble which has a method "print"
-	// to print a prefix to the file...
-
 	private void writeTraceFile(LogEntry entry) throws FileNotFoundException {
 		File file = entry.getTraceFile();
 		PrintStream out = new PrintStream(file);
@@ -248,7 +246,8 @@ public class ErrorLog {
 		out.close();
 	}
 
-	public void report(LogEntry entry) throws FileNotFoundException {
+	private void reportWithSearcher(LogEntry entry)
+			throws FileNotFoundException {
 		int length = searcher.stack().size();
 		LogEntry oldEntry = entryMap.get(entry);
 
@@ -294,6 +293,15 @@ public class ErrorLog {
 			searchTruncated = true;
 			throw new ExcessiveErrorException(errorBound);
 		}
+	}
+
+	public void report(LogEntry entry) throws FileNotFoundException {
+		if (searcher == null) {
+			out.println("Error " + numErrors + ":");
+			entry.printBody(out);
+			numErrors++;
+		} else
+			reportWithSearcher(entry);
 	}
 
 }
