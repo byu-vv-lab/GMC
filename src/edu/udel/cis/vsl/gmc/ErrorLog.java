@@ -104,6 +104,11 @@ public class ErrorLog {
 	private File logFile;
 
 	/**
+	 * Search for a minimal counterexample?
+	 */
+	private boolean minimize;
+
+	/**
 	 * Creates new ErrorLog.
 	 * 
 	 * @param directory
@@ -162,6 +167,28 @@ public class ErrorLog {
 	}
 
 	// Public methods...
+
+	/**
+	 * Are we searching for a minimal counterexample?
+	 * 
+	 * @return value of minimize flag
+	 */
+	public boolean getMinimize() {
+		return minimize;
+	}
+
+	/**
+	 * Sets the minimize flag to given value. If true, each time a violation is
+	 * found, the search depth will be restricted to its current depth minus
+	 * one.
+	 * 
+	 * @param value
+	 *            true iff we want to search for a minimal counterexample
+	 */
+	public void setMinimize(boolean value) {
+		this.minimize = value;
+		searcher.boundDepth(Integer.MAX_VALUE);
+	}
 
 	/**
 	 * Returns the directory in which trace files and the log will be stored.
@@ -289,7 +316,11 @@ public class ErrorLog {
 			writeTraceFile(entry);
 		}
 		numErrors++;
-		if (numErrors >= errorBound) {
+		if (minimize) {
+			searcher.restrictDepth();
+			out.println("Restricting search depth to " + (length - 1));
+			out.flush();
+		} else if (numErrors >= errorBound) {
 			searchTruncated = true;
 			throw new ExcessiveErrorException(errorBound);
 		}

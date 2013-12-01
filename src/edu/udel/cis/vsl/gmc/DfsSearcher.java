@@ -91,6 +91,16 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	private int summaryCutOff = 5;
 
 	/**
+	 * Upper bound on stack depth.
+	 */
+	private int depthBound = Integer.MAX_VALUE;
+
+	/**
+	 * Place an upper bound on stack size (depth).
+	 */
+	private boolean stackIsBounded = false;
+
+	/**
 	 * Constructs a new depth first search searcher.
 	 * 
 	 * @param enabler
@@ -146,6 +156,25 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 	public String name() {
 		return name;
+	}
+
+	public boolean isDepthBounded() {
+		return stackIsBounded;
+	}
+
+	public void unboundDepth() {
+		this.stackIsBounded = false;
+		depthBound = Integer.MAX_VALUE;
+	}
+
+	public void boundDepth(int value) {
+		depthBound = value;
+		stackIsBounded = true;
+	}
+
+	public void restrictDepth() {
+		depthBound = stack.size() - 1;
+		stackIsBounded = true;
 	}
 
 	public boolean reportCycleAsViolation() {
@@ -276,7 +305,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			TRANSITIONSEQUENCE sequence = stack.peek();
 			STATE currentState = enabler.source(sequence);
 
-			while (enabler.hasNext(sequence)) {
+			while ((!stackIsBounded || stack.size() < depthBound)
+					&& enabler.hasNext(sequence)) {
 				TRANSITION transition = enabler.peek(sequence);
 				STATE newState = manager.nextState(currentState, transition);
 
