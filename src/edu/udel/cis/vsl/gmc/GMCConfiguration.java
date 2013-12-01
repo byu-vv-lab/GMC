@@ -215,6 +215,29 @@ public class GMCConfiguration {
 	}
 
 	/**
+	 * Given an option of map type, and a key, this returns the value associated
+	 * to the key in the map associated to option. If the map associated to this
+	 * option is null, this returns null. If there is no entry in the map for
+	 * the key, this returns null.
+	 * 
+	 * @param option
+	 *            an option of map type associated to this configuration
+	 * @param key
+	 *            a string to be used as the key in the map
+	 * @return the value associated to the key or null
+	 * @thros IllegalArgumentException if the given option does not have map
+	 *        type or is not associated to this configuration
+	 */
+	public Object getMapEntry(Option option, String key) {
+		Map<String, Object> map = getMapValue(option);
+
+		if (map == null)
+			return null;
+		else
+			return map.get(key);
+	}
+
+	/**
 	 * Determines whether the value associated to a boolean option should be
 	 * construed as true in most circumstances. Specifically: if there is a
 	 * value associated to this option, this method will return that value. If
