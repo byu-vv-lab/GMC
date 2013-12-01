@@ -444,9 +444,36 @@ public class GMCConfiguration {
 	}
 
 	/**
+	 * Modifies this configuration by reading in the values of the given
+	 * configuration and using those to set values of this one. Existing entries
+	 * in this one may be overwritten in the process.
+	 * 
+	 * @param that
+	 *            another configuration; the set of options associated to that
+	 *            should be a subset of the set of options associated to this
+	 */
+	public void read(GMCConfiguration that) {
+		for (Entry<Option, Object> entry : that.valueMap.entrySet()) {
+			Option option = entry.getKey();
+			OptionType type = option.type();
+
+			if (type == OptionType.MAP) {
+				@SuppressWarnings("unchecked")
+				Map<String, Object> map = (Map<String, Object>) entry
+						.getValue();
+
+				for (Entry<String, Object> mapEntry : map.entrySet())
+					putMapEntry(option, mapEntry.getKey(), mapEntry.getValue());
+			} else {
+				setScalarValue(option, entry.getValue());
+			}
+		}
+	}
+
+	/**
 	 * Prints the current state of this configuration in a manner similar to
 	 * what would appear on a commandline. Each scalar assignment appears on one
-	 * line.
+	 * line. At the end the free arguments are printed, one on each line.
 	 * 
 	 * @param out
 	 *            print stream to which to print
@@ -474,6 +501,8 @@ public class GMCConfiguration {
 				out.println();
 			}
 		}
+		for (String arg : freeArgs)
+			out.println(arg);
 		out.flush();
 	}
 

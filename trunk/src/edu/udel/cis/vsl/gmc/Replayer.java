@@ -40,6 +40,10 @@ public class Replayer<STATE, TRANSITION> {
 	 */
 	private boolean printAllStates = true;
 
+	private StatePredicateIF<STATE> predicate = null;
+
+	private ErrorLog log = null;
+
 	// Constructors...
 
 	/**
@@ -93,12 +97,28 @@ public class Replayer<STATE, TRANSITION> {
 
 	// Instance methods: public...
 
+	public void setPredicate(StatePredicateIF<STATE> predicate) {
+		this.predicate = predicate;
+	}
+
+	public StatePredicateIF<STATE> getPredicate() {
+		return predicate;
+	}
+
 	public void setPrintAllStates(boolean value) {
 		this.printAllStates = value;
 	}
 
 	public boolean getPrintAllStates() {
 		return printAllStates;
+	}
+
+	public void setLog(ErrorLog log) {
+		this.log = log;
+	}
+
+	public ErrorLog getLog() {
+		return log;
 	}
 
 	/**
@@ -127,12 +147,14 @@ public class Replayer<STATE, TRANSITION> {
 	 *            state of index 0 is the one that will work with the guide
 	 * @throws MisguidedExecutionException
 	 */
-	public void play(STATE states[], boolean[] print, String[] names,
+	public boolean play(STATE states[], boolean[] print, String[] names,
 			TransitionChooser<STATE, TRANSITION> chooser)
 			throws MisguidedExecutionException {
 		int numExecutions = states.length;
 		int step = 0;
 		String[] executionNames = new String[numExecutions];
+		boolean violation = false;
+		TRANSITION transition;
 
 		for (int i = 0; i < numExecutions; i++) {
 			String name = names[i];
@@ -142,10 +164,28 @@ public class Replayer<STATE, TRANSITION> {
 			else
 				executionNames[i] = " (" + names + ")";
 		}
+		out.println("\nInitial state:");
 		printStates(step, numExecutions, executionNames, print, states);
 		while (true) {
-			TRANSITION transition = chooser.chooseEnabledTransition(states[0]);
+			if (predicate != null) {
+				for (int i = 0; i < numExecutions; i++) {
+					STATE state = states[i];
 
+					if (predicate.holdsAt(state)) {
+						if (!printAllStates) {
+							out.println();
+							manager.printStateLong(out, state);
+						}
+						out.println();
+						out.println("Violation of " + predicate + " found in "
+								+ state + ":");
+						out.println(predicate.explanation());
+						out.println();
+						violation = true;
+					}
+				}
+			}
+			transition = chooser.chooseEnabledTransition(states[0]);
 			if (transition == null)
 				break;
 			step++;
@@ -162,12 +202,14 @@ public class Replayer<STATE, TRANSITION> {
 				printStates(step, numExecutions, executionNames, print, states);
 		}
 		// always print the last state:
+		out.println("\nFinal state:");
 		if (!printAllStates)
 			printStates(step, numExecutions, executionNames, print, states);
 		out.println("Trace ends after " + step + " steps.");
+		return violation;
 	}
 
-	public void play(STATE initialState,
+	public boolean play(STATE initialState,
 			TransitionChooser<STATE, TRANSITION> chooser)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
@@ -175,10 +217,10 @@ public class Replayer<STATE, TRANSITION> {
 		boolean[] printArray = new boolean[] { true };
 		String[] names = new String[] { null };
 
-		play(stateArray, printArray, names, chooser);
+		return play(stateArray, printArray, names, chooser);
 	}
 
-	public void play(STATE initialSymbolicState, STATE initialConcreteState,
+	public boolean play(STATE initialSymbolicState, STATE initialConcreteState,
 			boolean printSymbolicStates,
 			TransitionChooser<STATE, TRANSITION> chooser)
 			throws MisguidedExecutionException {
@@ -188,7 +230,7 @@ public class Replayer<STATE, TRANSITION> {
 		boolean[] printArray = new boolean[] { printSymbolicStates, true };
 		String[] names = new String[] { "Symbolic", "Concrete" };
 
-		play(stateArray, printArray, names, chooser);
+		return play(stateArray, printArray, names, chooser);
 	}
 
 }
