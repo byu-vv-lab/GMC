@@ -118,33 +118,6 @@ public class Option {
 		return defaultValue;
 	}
 
-	// /**
-	// * Modifies the given configuration by setting its value for the
-	// commandline
-	// * parameter associated to this option to the given value.
-	// *
-	// * @param configuration
-	// * any non-null GMCConfiguration
-	// * @param value
-	// * the value to assign to the parameter represented by this
-	// * Option; must have the appropriate type
-	// * @throws IllegalArgumentException
-	// * if the value is type or its type does not correspond to the
-	// * type of this option
-	// */
-	// public abstract void set(GMCConfiguration configuration, Object value);
-	//
-	// /**
-	// * Gets the value associated to this option by the given configuration.
-	// * Returns null if there is no value associated to this option in the
-	// * configuration.
-	// *
-	// * @param configuration
-	// * any non-null GMCConfiguration
-	// * @return the value associated to the option
-	// */
-	// public abstract Object get(GMCConfiguration configuration);
-
 	/**
 	 * Prints a human-readable description of this option, including its name,
 	 * type, and default value. The form is appropriate for including in a
@@ -168,7 +141,7 @@ public class Option {
 	}
 
 	public void print(PrintStream out) {
-		out.println(toString());
+		out.println("  " + toString());
 		out.flush();
 	}
 }
