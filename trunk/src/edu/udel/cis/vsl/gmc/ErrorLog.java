@@ -292,6 +292,7 @@ public class ErrorLog {
 				out.println("Length of new trace (" + length
 						+ ") is less than length of old (" + oldLength
 						+ "): replacing old with new...");
+				entry.setId(id);
 				entry.setSize(length);
 				entry.setTraceFile(file);
 				entryMap.remove(entry);

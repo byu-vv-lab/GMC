@@ -10,15 +10,26 @@ import java.util.List;
 public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		implements TransitionChooser<STATE, TRANSITION> {
 
+	static class Guide {
+		Guide(int length, int[] choices) {
+			this.length = length;
+			this.choices = choices;
+		}
+
+		int length; /* the number of steps in the trace */
+
+		int[] choices; /* transitions to choose when more than 1 enabled */
+	}
+
 	private EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
 
-	private int[] guide;
+	private Guide guide;
 
 	private int guideIndex = 0;
 
 	public GuidedTransitionChooser(
 			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			int[] guide) {
+			Guide guide) {
 		this.enabler = enabler;
 		this.guide = guide;
 	}
@@ -28,6 +39,15 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 			File traceFile) throws IOException, MisguidedExecutionException {
 		this.enabler = enabler;
 		this.guide = makeGuide(traceFile);
+	}
+
+	/**
+	 * Returns the length of this execution.
+	 * 
+	 * @return length of this execution
+	 */
+	public int getLength() {
+		return guide.length;
 	}
 
 	/**
@@ -49,20 +69,43 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	 *             reader
 	 * @throws MisguidedExecutionException
 	 */
-	public static int[] makeGuide(BufferedReader reader) throws IOException,
+	public static Guide makeGuide(BufferedReader reader) throws IOException,
 			MisguidedExecutionException {
 		List<Integer> intList = new LinkedList<Integer>();
 		int numInts, count;
-		int[] guide;
+		int length;
+		int[] choices;
 
 		while (true) {
 			String line = reader.readLine();
 
 			if (line == null)
-				throw new RuntimeException("Trace begin line not found");
+				throw new MisguidedExecutionException(
+						"Trace begin line not found");
 			line = line.trim();
 			if ("== Begin Trace ==".equals(line))
 				break;
+		}
+		{
+			String line = reader.readLine();
+			String words[];
+
+			if (line == null)
+				throw new MisguidedExecutionException(
+						"Trace LENGTH line not found");
+			line = line.trim();
+			words = line.split(" ");
+			if (words.length != 3 || !words[0].equals("LENGTH")
+					|| !words[1].equals("="))
+				throw new MisguidedExecutionException(
+						"Expected \"LENGTH = length\" in trace file, saw "
+								+ line);
+			try {
+				length = new Integer(words[2]);
+			} catch (NumberFormatException e) {
+				throw new MisguidedExecutionException(
+						"Expected integer in trace file, saw " + words[2]);
+			}
 		}
 		while (true) {
 			String line = reader.readLine();
@@ -90,13 +133,13 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		}
 		reader.close();
 		numInts = intList.size();
-		guide = new int[numInts];
+		choices = new int[numInts];
 		count = 0;
 		for (Integer value : intList) {
-			guide[count] = value;
+			choices[count] = value;
 			count++;
 		}
-		return guide;
+		return new Guide(length, choices);
 	}
 
 	/**
@@ -111,7 +154,7 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	 *             file
 	 * @throws MisguidedExecutionException
 	 */
-	public static int[] makeGuide(File file) throws IOException,
+	public static Guide makeGuide(File file) throws IOException,
 			MisguidedExecutionException {
 		return makeGuide(new BufferedReader(new FileReader(file)));
 	}
@@ -126,7 +169,7 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		if (!enabler.hasMultiple(sequence))
 			return enabler.next(sequence);
 		else if (guideIndex < guide.length) {
-			int index = guide[guideIndex];
+			int index = guide.choices[guideIndex];
 
 			guideIndex++;
 			for (int i = 0; i < index; i++) {
