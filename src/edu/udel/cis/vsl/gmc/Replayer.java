@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.PrintStream;
 
 /**
+ * CHANGE THE NAME. This is now more general. It is used to execute the system
+ * using any chooser.
+ * 
  * A Replayer is used to replay an execution trace of a transition system. The
  * trace is typically stored in a file created by method
  * {@link DfsSearcher#writeStack(File)}.
@@ -43,6 +46,11 @@ public class Replayer<STATE, TRANSITION> {
 	private StatePredicateIF<STATE> predicate = null;
 
 	private ErrorLog log = null;
+
+	/**
+	 * How long the execution should be, if known. If unknown, it is -1.
+	 */
+	private int length = -1;
 
 	// Constructors...
 
@@ -96,6 +104,14 @@ public class Replayer<STATE, TRANSITION> {
 	}
 
 	// Instance methods: public...
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	public int getLength() {
+		return length;
+	}
 
 	public void setPredicate(StatePredicateIF<STATE> predicate) {
 		this.predicate = predicate;
@@ -185,6 +201,12 @@ public class Replayer<STATE, TRANSITION> {
 					}
 				}
 			}
+			// at this point, step is the number of steps that have executed.
+			// We want to play the last transition (represented by top
+			// element in stack) because that could be where the error
+			// happens...
+			if (length >= 0 && step >= length)
+				break;
 			transition = chooser.chooseEnabledTransition(states[0]);
 			if (transition == null)
 				break;

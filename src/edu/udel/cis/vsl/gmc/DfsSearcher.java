@@ -569,6 +569,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	public void writeStack(PrintStream stream) {
 		int size = stack.size();
 
+		stream.println("LENGTH = " + size);
 		for (int i = 0; i < size; i++) {
 			TRANSITIONSEQUENCE sequence = stack.elementAt(i);
 
