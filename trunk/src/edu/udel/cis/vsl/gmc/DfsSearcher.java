@@ -101,6 +101,11 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	private boolean stackIsBounded = false;
 
 	/**
+	 * Are we searching for a minimal counterexample?
+	 */
+	private boolean minimize = false;
+
+	/**
 	 * Constructs a new depth first search searcher.
 	 * 
 	 * @param enabler
@@ -177,6 +182,14 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		stackIsBounded = true;
 	}
 
+	public void setMinimize(boolean value) {
+		this.minimize = value;
+	}
+
+	public boolean getMinimize() {
+		return minimize;
+	}
+
 	public boolean reportCycleAsViolation() {
 		return this.reportCycleAsViolation;
 	}
@@ -225,6 +238,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *         state satisfying the predicate.
 	 */
 	public boolean search(STATE initialState) {
+		if (minimize)
+			manager.setDepth(initialState, 0);
 		stack.push(enabler.enabledTransitions(initialState));
 		manager.setSeen(initialState, true);
 		manager.setOnStack(initialState, true);
@@ -311,7 +326,9 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				STATE newState = manager.nextState(currentState, transition);
 
 				numTransitions++;
-				if (!manager.seen(newState)) {
+				if (!manager.seen(newState)
+						|| (minimize && stack.size() < manager
+								.getDepth(newState))) {
 					assert !manager.onStack(newState);
 					if (debugging) {
 						debugOut.println("New state of " + name + " is "
@@ -321,6 +338,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 						debugOut.println();
 						debugOut.flush();
 					}
+					if (minimize)
+						manager.setDepth(newState, stack.size());
 					stack.push(enabler.enabledTransitions(newState));
 					manager.setSeen(newState, true);
 					manager.setOnStack(newState, true);

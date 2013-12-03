@@ -188,6 +188,7 @@ public class ErrorLog {
 	public void setMinimize(boolean value) {
 		this.minimize = value;
 		searcher.boundDepth(Integer.MAX_VALUE);
+		searcher.setMinimize(value);
 	}
 
 	/**

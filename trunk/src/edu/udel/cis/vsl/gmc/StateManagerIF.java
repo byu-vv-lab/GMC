@@ -156,4 +156,10 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 */
 	void printAllStatesLong(PrintStream out);
 
+	// optional methods for minimal DFS algorithm
+
+	int getDepth(STATE state);
+
+	void setDepth(STATE state, int value);
+
 }
