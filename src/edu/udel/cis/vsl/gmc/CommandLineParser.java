@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import edu.udel.cis.vsl.gmc.Option.OptionType;
 
@@ -43,7 +45,7 @@ public class CommandLineParser {
 	 * Map of all options associated to this parser: key is name of option,
 	 * value is the option.
 	 */
-	private Map<String, Option> optionMap = new LinkedHashMap<>();
+	private SortedMap<String, Option> optionMap = new TreeMap<>();
 
 	/**
 	 * Map of all options of Map type associated to this parser. The entries of
