@@ -157,11 +157,11 @@ public class Replayer<STATE, TRANSITION> {
 	 * @param names
 	 *            the names to use for the different executions. Array of length
 	 *            states.length
-	 * @param guide
-	 *            sequence of integers used to guide execution when a state is
-	 *            reached that has more than one enabled transition. The initial
-	 *            state of index 0 is the one that will work with the guide
+	 * @param chooser
+	 *            the object used to decide which transition to choose when more
+	 *            than one is enabled at a state
 	 * @throws MisguidedExecutionException
+	 *             if the chooser does
 	 */
 	public boolean play(STATE states[], boolean[] print, String[] names,
 			TransitionChooser<STATE, TRANSITION> chooser)
