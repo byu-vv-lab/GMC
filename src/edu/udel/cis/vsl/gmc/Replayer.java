@@ -211,9 +211,9 @@ public class Replayer<STATE, TRANSITION> {
 			if (transition == null)
 				break;
 			step++;
-			out.print("Step " + step + ": ");
-			manager.printTransitionLong(out, transition);
-			out.println();
+			out.print("\nTransition " + step + ": ");
+			// manager.printTransitionLong(out, transition);
+			// out.println();
 			for (int i = 0; i < numExecutions; i++)
 				states[i] = manager.nextState(states[i], transition);
 			// TODO: question: can the same transition be re-used?
@@ -224,10 +224,11 @@ public class Replayer<STATE, TRANSITION> {
 				printStates(step, numExecutions, executionNames, print, states);
 		}
 		// always print the last state:
-		out.println("\nFinal state:");
-		if (!printAllStates)
-			printStates(step, numExecutions, executionNames, print, states);
-		out.println("Trace ends after " + step + " steps.");
+		// out.println("\nFinal state:"); commented out to avoid duplicated
+		// printing of the final states
+		// if (!printAllStates)
+		// printStates(step, numExecutions, executionNames, print, states);
+		out.println("Trace ends after " + step + " transitions.");
 		return violation;
 	}
 
