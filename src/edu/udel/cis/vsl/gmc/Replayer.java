@@ -33,7 +33,7 @@ public class Replayer<STATE, TRANSITION> {
 
 	/**
 	 * The stream to which the human-readable output should be sent when
-	 * replayin a trace.
+	 * replaying a trace.
 	 */
 	private PrintStream out;
 
@@ -241,6 +241,110 @@ public class Replayer<STATE, TRANSITION> {
 		String[] names = new String[] { null };
 
 		return play(stateArray, printArray, names, chooser);
+	}
+	
+	public STATE[] getStates(STATE initialState,
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
+		@SuppressWarnings("unchecked")
+		STATE[] stateArray = (STATE[]) new Object[] { initialState };
+		boolean[] printArray = new boolean[] { true };
+		String[] names = new String[] { null };
+//TODO
+		return getStates(stateArray, printArray, names, chooser);
+	}
+	
+	/**
+	 * Plays the trace. This method accepts an array of initial states, and will
+	 * create executions in parallel, one for each initial state. All of the
+	 * executions will use the same sequence of transitions, but may start from
+	 * different initial states. The common use case has two initial states, the
+	 * first one a symbolic state and the second a concrete state obtained by
+	 * solving the path condition.
+	 * 
+	 * @param states
+	 *            the states from which the execution should start. The first
+	 *            state in the initial state (index 0) will be the one assumed
+	 *            to execute according to the guide. This method will modify
+	 *            this array so that upon returning the array will hold the
+	 *            final states.
+	 * @param print
+	 *            which states should be printed at a point when states will be
+	 *            printed. Array of length states.length.
+	 * @param names
+	 *            the names to use for the different executions. Array of length
+	 *            states.length
+	 * @param chooser
+	 *            the object used to decide which transition to choose when more
+	 *            than one is enabled at a state
+	 * @throws MisguidedExecutionException
+	 *             if the chooser does
+	 */
+	private STATE[] getStates(STATE states[], boolean[] print, String[] names,
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
+		int numExecutions = states.length;
+		int step = 0;
+		String[] executionNames = new String[numExecutions];
+		TRANSITION transition;
+
+		for (int i = 0; i < numExecutions; i++) {
+			String name = names[i];
+
+			if (name == null)
+				executionNames[i] = "";
+			else
+				executionNames[i] = " (" + names + ")";
+		}
+		out.println("\nInitial state:");
+		printStates(step, numExecutions, executionNames, print, states);
+		while (true) {
+			if (predicate != null) {
+				for (int i = 0; i < numExecutions; i++) {
+					STATE state = states[i];
+
+					if (predicate.holdsAt(state)) {
+						if (!printAllStates) {
+							out.println();
+							manager.printStateLong(out, state);
+						}
+						out.println();
+						out.println("Violation of " + predicate + " found in "
+								+ state + ":");
+						out.println(predicate.explanation());
+						out.println();
+					}
+				}
+			}
+			// at this point, step is the number of steps that have executed.
+			// We want to play the last transition (represented by top
+			// element in stack) because that could be where the error
+			// happens...
+			if (length >= 0 && step >= length)
+				break;
+			transition = chooser.chooseEnabledTransition(states[0]);
+			if (transition == null)
+				break;
+			step++;
+			out.print("\nTransition " + step + ": ");
+			// manager.printTransitionLong(out, transition);
+			// out.println();
+			for (int i = 0; i < numExecutions; i++)
+				states[i] = manager.nextState(states[i], transition);
+			// TODO: question: can the same transition be re-used?
+			// this is not specified in the contract and in some cases
+			// info is cached in the transition. Maybe duplicate the
+			// transition, or clear it???
+			if (printAllStates)
+				printStates(step, numExecutions, executionNames, print, states);
+		}
+		// always print the last state:
+		// out.println("\nFinal state:"); commented out to avoid duplicated
+		// printing of the final states
+		// if (!printAllStates)
+		// printStates(step, numExecutions, executionNames, print, states);
+		out.println("Trace ends after " + step + " transitions.");
+		return states;
 	}
 
 	public boolean play(STATE initialSymbolicState, STATE initialConcreteState,
