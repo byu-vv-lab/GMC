@@ -242,51 +242,17 @@ public class Replayer<STATE, TRANSITION> {
 
 		return play(stateArray, printArray, names, chooser);
 	}
-	
-	public STATE[] getStates(STATE initialState,
-			TransitionChooser<STATE, TRANSITION> chooser)
-			throws MisguidedExecutionException {
-		@SuppressWarnings("unchecked")
-		STATE[] stateArray = (STATE[]) new Object[] { initialState };
-		boolean[] printArray = new boolean[] { true };
+
+	public boolean replayForGui(STATE initialState,
+			TransitionChooser<STATE, TRANSITION> chooser, STATE[] states,
+			TRANSITION[] transitions) throws MisguidedExecutionException {
+		boolean[] print = new boolean[] { true };
 		String[] names = new String[] { null };
-//TODO
-		return getStates(stateArray, printArray, names, chooser);
-	}
-	
-	/**
-	 * Plays the trace. This method accepts an array of initial states, and will
-	 * create executions in parallel, one for each initial state. All of the
-	 * executions will use the same sequence of transitions, but may start from
-	 * different initial states. The common use case has two initial states, the
-	 * first one a symbolic state and the second a concrete state obtained by
-	 * solving the path condition.
-	 * 
-	 * @param states
-	 *            the states from which the execution should start. The first
-	 *            state in the initial state (index 0) will be the one assumed
-	 *            to execute according to the guide. This method will modify
-	 *            this array so that upon returning the array will hold the
-	 *            final states.
-	 * @param print
-	 *            which states should be printed at a point when states will be
-	 *            printed. Array of length states.length.
-	 * @param names
-	 *            the names to use for the different executions. Array of length
-	 *            states.length
-	 * @param chooser
-	 *            the object used to decide which transition to choose when more
-	 *            than one is enabled at a state
-	 * @throws MisguidedExecutionException
-	 *             if the chooser does
-	 */
-	private STATE[] getStates(STATE states[], boolean[] print, String[] names,
-			TransitionChooser<STATE, TRANSITION> chooser)
-			throws MisguidedExecutionException {
 		int numExecutions = states.length;
 		int step = 0;
 		String[] executionNames = new String[numExecutions];
 		TRANSITION transition;
+		boolean violation = false;
 
 		for (int i = 0; i < numExecutions; i++) {
 			String name = names[i];
@@ -313,6 +279,7 @@ public class Replayer<STATE, TRANSITION> {
 								+ state + ":");
 						out.println(predicate.explanation());
 						out.println();
+						violation = true;
 					}
 				}
 			}
@@ -329,8 +296,10 @@ public class Replayer<STATE, TRANSITION> {
 			out.print("\nTransition " + step + ": ");
 			// manager.printTransitionLong(out, transition);
 			// out.println();
-			for (int i = 0; i < numExecutions; i++)
+			for (int i = 0; i < numExecutions; i++) {
 				states[i] = manager.nextState(states[i], transition);
+				transitions[i] = transition;
+			}
 			// TODO: question: can the same transition be re-used?
 			// this is not specified in the contract and in some cases
 			// info is cached in the transition. Maybe duplicate the
@@ -344,7 +313,8 @@ public class Replayer<STATE, TRANSITION> {
 		// if (!printAllStates)
 		// printStates(step, numExecutions, executionNames, print, states);
 		out.println("Trace ends after " + step + " transitions.");
-		return states;
+		
+		return violation;
 	}
 
 	public boolean play(STATE initialSymbolicState, STATE initialConcreteState,
