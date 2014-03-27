@@ -2,6 +2,7 @@ package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * CHANGE THE NAME. This is now more general. It is used to execute the system
@@ -245,7 +246,8 @@ public class Replayer<STATE, TRANSITION> {
 
 	public boolean replayForGui(STATE initialState,
 			TransitionChooser<STATE, TRANSITION> chooser, STATE[] states,
-			TRANSITION[] transitions) throws MisguidedExecutionException {
+			ArrayList<TRANSITION> transitions)
+			throws MisguidedExecutionException {
 		boolean[] print = new boolean[] { true };
 		String[] names = new String[] { null };
 		int numExecutions = states.length;
@@ -298,7 +300,8 @@ public class Replayer<STATE, TRANSITION> {
 			// out.println();
 			for (int i = 0; i < numExecutions; i++) {
 				states[i] = manager.nextState(states[i], transition);
-				transitions[i] = transition;
+				transitions.add(transition);
+				//transitions[i] = transition;
 			}
 			// TODO: question: can the same transition be re-used?
 			// this is not specified in the contract and in some cases
@@ -313,7 +316,7 @@ public class Replayer<STATE, TRANSITION> {
 		// if (!printAllStates)
 		// printStates(step, numExecutions, executionNames, print, states);
 		out.println("Trace ends after " + step + " transitions.");
-		
+
 		return violation;
 	}
 
