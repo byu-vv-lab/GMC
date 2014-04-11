@@ -37,6 +37,20 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	STATE nextState(STATE state, TRANSITION transition);
 
 	/**
+	 * Given a state and a transition, returns the "next state" and the complete
+	 * transition during the execution.
+	 * 
+	 * @param state
+	 *            a state in the state transition system
+	 * @param transition
+	 *            an execution which is enabled at the given state
+	 * @return An array of two objects. Object 1: the state which results from executing the transition from the
+	 *         given state; Object 2: the complete transition (may including multiple
+	 *         steps) during the execution.
+	 */
+	Object[] nextStateForGui(STATE state, TRANSITION transition);
+
+	/**
 	 * Sets the "seen flag" in the given state to the given value. The method
 	 * can be implemented in any way, as long as the corresponding method to get
 	 * the seen flag returns the correct result. It might be implemented using a

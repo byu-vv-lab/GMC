@@ -244,45 +244,36 @@ public class Replayer<STATE, TRANSITION> {
 		return play(stateArray, printArray, names, chooser);
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean replayForGui(STATE initialState,
-			TransitionChooser<STATE, TRANSITION> chooser, STATE[] states,
-			ArrayList<TRANSITION> transitions)
+			TransitionChooser<STATE, TRANSITION> chooser,
+			ArrayList<STATE> states, ArrayList<TRANSITION> transitions)
 			throws MisguidedExecutionException {
 		boolean[] print = new boolean[] { true };
-		String[] names = new String[] { null };
-		int numExecutions = states.length;
 		int step = 0;
-		String[] executionNames = new String[numExecutions];
+		String[] executionNames = new String[1];
 		TRANSITION transition;
 		boolean violation = false;
+		STATE current = initialState;
+		Object[] results;
 
-		for (int i = 0; i < numExecutions; i++) {
-			String name = names[i];
-
-			if (name == null)
-				executionNames[i] = "";
-			else
-				executionNames[i] = " (" + names + ")";
-		}
+		executionNames[0] = "";
 		out.println("\nInitial state:");
-		printStates(step, numExecutions, executionNames, print, states);
+		printStates(step, 1, executionNames, print,
+				(STATE[]) new Object[] { initialState });
 		while (true) {
 			if (predicate != null) {
-				for (int i = 0; i < numExecutions; i++) {
-					STATE state = states[i];
-
-					if (predicate.holdsAt(state)) {
-						if (!printAllStates) {
-							out.println();
-							manager.printStateLong(out, state);
-						}
+				if (predicate.holdsAt(current)) {
+					if (!printAllStates) {
 						out.println();
-						out.println("Violation of " + predicate + " found in "
-								+ state + ":");
-						out.println(predicate.explanation());
-						out.println();
-						violation = true;
+						manager.printStateLong(out, current);
 					}
+					out.println();
+					out.println("Violation of " + predicate + " found in "
+							+ current + ":");
+					out.println(predicate.explanation());
+					out.println();
+					violation = true;
 				}
 			}
 			// at this point, step is the number of steps that have executed.
@@ -291,30 +282,24 @@ public class Replayer<STATE, TRANSITION> {
 			// happens...
 			if (length >= 0 && step >= length)
 				break;
-			transition = chooser.chooseEnabledTransition(states[0]);
+			transition = chooser.chooseEnabledTransition(current);
 			if (transition == null)
 				break;
 			step++;
 			out.print("\nTransition " + step + ": ");
-			// manager.printTransitionLong(out, transition);
-			// out.println();
-			for (int i = 0; i < numExecutions; i++) {
-				states[i] = manager.nextState(states[i], transition);
-				transitions.add(transition);
-				//transitions[i] = transition;
-			}
+			results = manager.nextStateForGui(current, transition);
+			current = (STATE) results[0];
+			transition = (TRANSITION) results[1];
+			states.add(current);
+			transitions.add(transition);
 			// TODO: question: can the same transition be re-used?
 			// this is not specified in the contract and in some cases
 			// info is cached in the transition. Maybe duplicate the
 			// transition, or clear it???
 			if (printAllStates)
-				printStates(step, numExecutions, executionNames, print, states);
+				printStates(step, 1, executionNames, print,
+						(STATE[]) new Object[] { current });
 		}
-		// always print the last state:
-		// out.println("\nFinal state:"); commented out to avoid duplicated
-		// printing of the final states
-		// if (!printAllStates)
-		// printStates(step, numExecutions, executionNames, print, states);
 		out.println("Trace ends after " + step + " transitions.");
 
 		return violation;
