@@ -25,7 +25,6 @@ import java.util.ArrayList;
 public class Replayer<STATE, TRANSITION> {
 
 	// Instance fields...
-
 	/**
 	 * The state manager: the object used to determine the next state given a
 	 * state and a transition.
@@ -244,8 +243,20 @@ public class Replayer<STATE, TRANSITION> {
 		return play(stateArray, printArray, names, chooser);
 	}
 
+	/**
+	 * TODO: number executions merge play and palyForUi: TRACE_STEP: state,
+	 * transition. TRACE: name, result (true/false), a list of TRACE_STEP's.
+	 * Return an array of traces.
+	 * 
+	 * @param initialState
+	 * @param chooser
+	 * @param states
+	 * @param transitions
+	 * @return
+	 * @throws MisguidedExecutionException
+	 */
 	@SuppressWarnings("unchecked")
-	public boolean replayForGui(STATE initialState,
+	public boolean playForUi(STATE initialState,
 			TransitionChooser<STATE, TRANSITION> chooser,
 			ArrayList<STATE> states, ArrayList<TRANSITION> transitions)
 			throws MisguidedExecutionException {
@@ -287,14 +298,15 @@ public class Replayer<STATE, TRANSITION> {
 				break;
 			step++;
 			out.print("\nTransition " + step + ": ");
-			results = manager.nextStateForGui(current, transition);
+			results = manager.nextStateForUi(current, transition);
 			current = (STATE) results[0];
 			transition = (TRANSITION) results[1];
 			states.add(current);
 			transitions.add(transition);
 			// TODO: question: can the same transition be re-used?
 			// this is not specified in the contract and in some cases
-			// info is cached in the transition. Maybe duplicate the
+			// info is cached (e.g., path condition) in the transition. Maybe
+			// duplicate the
 			// transition, or clear it???
 			if (printAllStates)
 				printStates(step, 1, executionNames, print,

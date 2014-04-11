@@ -44,11 +44,13 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 *            a state in the state transition system
 	 * @param transition
 	 *            an execution which is enabled at the given state
-	 * @return An array of two objects. Object 1: the state which results from executing the transition from the
-	 *         given state; Object 2: the complete transition (may including multiple
-	 *         steps) during the execution.
+	 * @return An array of two objects. Object 1: the state which results from
+	 *         executing the transition from the given state; Object 2: the
+	 *         complete transition (may including multiple steps) during the
+	 *         execution.
 	 */
-	Object[] nextStateForGui(STATE state, TRANSITION transition);
+	// TODO to make the interface clean, heavy-weight 
+	Object[] nextStateForUi(STATE state, TRANSITION transition);
 
 	/**
 	 * Sets the "seen flag" in the given state to the given value. The method
