@@ -2,7 +2,6 @@ package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 /**
  * CHANGE THE NAME. This is now more general. It is used to execute the system
@@ -137,6 +136,17 @@ public class Replayer<STATE, TRANSITION> {
 		return log;
 	}
 
+	public Trace<TRANSITION, STATE>[] play(STATE initialState,
+			TransitionChooser<STATE, TRANSITION> chooser)
+			throws MisguidedExecutionException {
+		@SuppressWarnings("unchecked")
+		STATE[] stateArray = (STATE[]) new Object[] { initialState };
+		boolean[] printArray = new boolean[] { true };
+		String[] names = new String[] { null };
+
+		return play(stateArray, printArray, names, chooser);
+	}
+
 	/**
 	 * Plays the trace. This method accepts an array of initial states, and will
 	 * create executions in parallel, one for each initial state. All of the
@@ -160,17 +170,20 @@ public class Replayer<STATE, TRANSITION> {
 	 * @param chooser
 	 *            the object used to decide which transition to choose when more
 	 *            than one is enabled at a state
+	 * @return An array of traces after executing the trace with different
+	 *         initial states. See also {@link Trace}.
 	 * @throws MisguidedExecutionException
-	 *             if the chooser does
 	 */
-	public boolean play(STATE states[], boolean[] print, String[] names,
-			TransitionChooser<STATE, TRANSITION> chooser)
+	@SuppressWarnings("unchecked")
+	public Trace<TRANSITION, STATE>[] play(STATE states[], boolean print[],
+			String[] names, TransitionChooser<STATE, TRANSITION> chooser)
 			throws MisguidedExecutionException {
-		int numExecutions = states.length;
 		int step = 0;
-		String[] executionNames = new String[numExecutions];
-		boolean violation = false;
+		int numExecutions = states.length;
+		String[] executionNames = new String[1];
 		TRANSITION transition;
+		TraceStepIF<TRANSITION, STATE> traceStep;
+		Trace<TRANSITION, STATE>[] traces = new Trace[numExecutions];
 
 		for (int i = 0; i < numExecutions; i++) {
 			String name = names[i];
@@ -179,13 +192,18 @@ public class Replayer<STATE, TRANSITION> {
 				executionNames[i] = "";
 			else
 				executionNames[i] = " (" + names + ")";
+			traces[i] = new Trace<TRANSITION, STATE>(executionNames[i],
+					states[i]);
 		}
 		out.println("\nInitial state:");
-		printStates(step, numExecutions, executionNames, print, states);
+		printStates(step, 1, executionNames, print, states);
 		while (true) {
+			boolean hasNewTransition = false;
+			STATE[] newStates = (STATE[]) new Object[numExecutions];
+
 			if (predicate != null) {
 				for (int i = 0; i < numExecutions; i++) {
-					STATE state = states[i];
+					STATE state = traces[i].lastState();
 
 					if (predicate.holdsAt(state)) {
 						if (!printAllStates) {
@@ -197,7 +215,7 @@ public class Replayer<STATE, TRANSITION> {
 								+ state + ":");
 						out.println(predicate.explanation());
 						out.println();
-						violation = true;
+						traces[i].setViolation(true);
 					}
 				}
 			}
@@ -207,118 +225,32 @@ public class Replayer<STATE, TRANSITION> {
 			// happens...
 			if (length >= 0 && step >= length)
 				break;
-			transition = chooser.chooseEnabledTransition(states[0]);
-			if (transition == null)
-				break;
-			step++;
-			out.print("\nTransition " + step + ": ");
-			// manager.printTransitionLong(out, transition);
-			// out.println();
-			for (int i = 0; i < numExecutions; i++)
-				states[i] = manager.nextState(states[i], transition);
-			// TODO: question: can the same transition be re-used?
-			// this is not specified in the contract and in some cases
-			// info is cached in the transition. Maybe duplicate the
-			// transition, or clear it???
-			if (printAllStates)
-				printStates(step, numExecutions, executionNames, print, states);
-		}
-		// always print the last state:
-		// out.println("\nFinal state:"); commented out to avoid duplicated
-		// printing of the final states
-		// if (!printAllStates)
-		// printStates(step, numExecutions, executionNames, print, states);
-		out.println("Trace ends after " + step + " transitions.");
-		return violation;
-	}
+			for (int i = 0; i < numExecutions; i++) {
+				STATE current = traces[i].lastState();
 
-	public boolean play(STATE initialState,
-			TransitionChooser<STATE, TRANSITION> chooser)
-			throws MisguidedExecutionException {
-		@SuppressWarnings("unchecked")
-		STATE[] stateArray = (STATE[]) new Object[] { initialState };
-		boolean[] printArray = new boolean[] { true };
-		String[] names = new String[] { null };
-
-		return play(stateArray, printArray, names, chooser);
-	}
-
-	/**
-	 * TODO: number executions merge play and palyForUi: TRACE_STEP: state,
-	 * transition. TRACE: name, result (true/false), a list of TRACE_STEP's.
-	 * Return an array of traces.
-	 * 
-	 * @param initialState
-	 * @param chooser
-	 * @param states
-	 * @param transitions
-	 * @return
-	 * @throws MisguidedExecutionException
-	 */
-	@SuppressWarnings("unchecked")
-	public boolean playForUi(STATE initialState,
-			TransitionChooser<STATE, TRANSITION> chooser,
-			ArrayList<STATE> states, ArrayList<TRANSITION> transitions)
-			throws MisguidedExecutionException {
-		boolean[] print = new boolean[] { true };
-		int step = 0;
-		String[] executionNames = new String[1];
-		TRANSITION transition;
-		boolean violation = false;
-		STATE current = initialState;
-		Object[] results;
-
-		executionNames[0] = "";
-		out.println("\nInitial state:");
-		printStates(step, 1, executionNames, print,
-				(STATE[]) new Object[] { initialState });
-		while (true) {
-			if (predicate != null) {
-				if (predicate.holdsAt(current)) {
-					if (!printAllStates) {
-						out.println();
-						manager.printStateLong(out, current);
-					}
-					out.println();
-					out.println("Violation of " + predicate + " found in "
-							+ current + ":");
-					out.println(predicate.explanation());
-					out.println();
-					violation = true;
+				transition = chooser.chooseEnabledTransition(current);
+				if (transition == null) {
+					newStates[i] = null;
+					continue;
 				}
+				hasNewTransition = true;
+				traceStep = manager.nextState(current, transition);
+				traces[i].addTraceStep(traceStep);
+				newStates[i] = traces[i].lastState();
 			}
-			// at this point, step is the number of steps that have executed.
-			// We want to play the last transition (represented by top
-			// element in stack) because that could be where the error
-			// happens...
-			if (length >= 0 && step >= length)
-				break;
-			transition = chooser.chooseEnabledTransition(current);
-			if (transition == null)
+			if (!hasNewTransition)
 				break;
 			step++;
 			out.print("\nTransition " + step + ": ");
-			results = manager.nextStateForUi(current, transition);
-			current = (STATE) results[0];
-			transition = (TRANSITION) results[1];
-			states.add(current);
-			transitions.add(transition);
-			// TODO: question: can the same transition be re-used?
-			// this is not specified in the contract and in some cases
-			// info is cached (e.g., path condition) in the transition. Maybe
-			// duplicate the
-			// transition, or clear it???
 			if (printAllStates)
-				printStates(step, 1, executionNames, print,
-						(STATE[]) new Object[] { current });
+				printStates(step, 1, executionNames, print, newStates);
 		}
 		out.println("Trace ends after " + step + " transitions.");
-
-		return violation;
+		return traces;
 	}
 
-	public boolean play(STATE initialSymbolicState, STATE initialConcreteState,
-			boolean printSymbolicStates,
+	public Trace<TRANSITION, STATE>[] play(STATE initialSymbolicState,
+			STATE initialConcreteState, boolean printSymbolicStates,
 			TransitionChooser<STATE, TRANSITION> chooser)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
