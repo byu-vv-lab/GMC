@@ -24,33 +24,16 @@ import java.io.PrintStream;
 public interface StateManagerIF<STATE, TRANSITION> {
 
 	/**
-	 * Given a state and a transition, returns the "next state", i.e., the state
-	 * which results from executing the transition from the given state.
+	 * Given a state and a transition, returns the trace step after executing
+	 * the transition at the given state. See {@link TraceStepIF}.
 	 * 
 	 * @param state
 	 *            a state in the state transition system
 	 * @param transition
 	 *            an execution which is enabled at the given state
-	 * @return the state which results from executing the transition from the
-	 *         given state
+	 * @return the trace step after executing the transition at the given state.
 	 */
-	STATE nextState(STATE state, TRANSITION transition);
-
-	/**
-	 * Given a state and a transition, returns the "next state" and the complete
-	 * transition during the execution.
-	 * 
-	 * @param state
-	 *            a state in the state transition system
-	 * @param transition
-	 *            an execution which is enabled at the given state
-	 * @return An array of two objects. Object 1: the state which results from
-	 *         executing the transition from the given state; Object 2: the
-	 *         complete transition (may including multiple steps) during the
-	 *         execution.
-	 */
-	// TODO to make the interface clean, heavy-weight 
-	Object[] nextStateForUi(STATE state, TRANSITION transition);
+	TraceStepIF<TRANSITION, STATE> nextState(STATE state, TRANSITION transition);
 
 	/**
 	 * Sets the "seen flag" in the given state to the given value. The method
