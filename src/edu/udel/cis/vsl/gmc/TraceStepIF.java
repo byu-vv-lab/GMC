@@ -19,5 +19,5 @@ public interface TraceStepIF<TRANSITION, STATE> {
 	 * 
 	 * @return the resulting state of the trace step.
 	 */
-	STATE postState();
+	STATE getFinalState();
 }
