@@ -324,7 +324,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					&& enabler.hasNext(sequence)) {
 				TRANSITION transition = enabler.peek(sequence);
 				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(currentState, transition);
-				STATE newState = traceStep.result();
+				STATE newState = traceStep.postState();
 
 				numTransitions++;
 				if (!manager.seen(newState)
