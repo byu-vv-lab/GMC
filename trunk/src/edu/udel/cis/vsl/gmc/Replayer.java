@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.PrintStream;
 
 /**
- * CHANGE THE NAME. This is now more general. It is used to execute the system
+ * TODO: CHANGE THE NAME. This is now more general. It is used to execute the system
  * using any chooser.
  * 
  * A Replayer is used to replay an execution trace of a transition system. The
