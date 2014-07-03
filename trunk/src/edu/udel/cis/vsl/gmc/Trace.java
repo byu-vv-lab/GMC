@@ -125,7 +125,7 @@ public class Trace<TRANSITION, STATE> {
 
 		if (size < 1)
 			return this.init;
-		return this.traceSteps.get(size - 1).postState();
+		return this.traceSteps.get(size - 1).getFinalState();
 	}
 
 	/**
