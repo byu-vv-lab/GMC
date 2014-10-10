@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * This represents a trace of an execution of a given model.
  * 
- * @author Manchun Zheng
+ * @author Manchun Zheng (zmanchun)
  * 
  * @param <TRANSITION>
  *            the type used to represent transitions in the state-transition
