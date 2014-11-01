@@ -30,7 +30,7 @@ import java.util.TreeMap;
  * 
  * In addition to recording errors, this class provides a number of convenient
  * services: using information provided by the application, it can determine
- * when two errors are considered "equivalent" and therfore only one instance
+ * when two errors are considered "equivalent" and therefore only one instance
  * needs to be reported; it can prioritize the errors so that the most important
  * are reported to the user first; it can associate a trace to each error and
  * save these in a file, so the user can later replay the trace associate to
@@ -83,6 +83,12 @@ public class ErrorLog {
 	 * {@link ExcessiveErrorException}.
 	 */
 	private int errorBound = 5;
+
+	/**
+	 * The size of the minimal counterexample (violation) logged so far, or -1
+	 * if none has been logged.
+	 */
+	private int minimalCounterexampleSize = -1;
 
 	/**
 	 * Was this search truncated due to an excessive error exception?
@@ -274,11 +280,22 @@ public class ErrorLog {
 		out.close();
 	}
 
+	/**
+	 * 
+	 * @param entry
+	 * @throws FileNotFoundException
+	 * @throws ExcessiveErrorException
+	 *             if the number of errors reported has exceeded the specified
+	 *             bound
+	 */
 	private void reportWithSearcher(LogEntry entry)
 			throws FileNotFoundException {
 		int length = searcher.stack().size();
 		LogEntry oldEntry = entryMap.get(entry);
 
+		if (minimalCounterexampleSize < 0 || length < minimalCounterexampleSize) {
+			minimalCounterexampleSize = length;
+		}
 		out.println("Error " + numErrors + " encountered at depth " + length
 				+ ":");
 		entry.printBody(out);
@@ -328,6 +345,11 @@ public class ErrorLog {
 		}
 	}
 
+	/**
+	 * @throws ExcessiveErrorException
+	 *             if the number of errors reported has exceeded the specified
+	 *             bound
+	 */
 	public void report(LogEntry entry) throws FileNotFoundException {
 		if (searcher == null) {
 			out.println("Error " + numErrors + ":");
@@ -335,6 +357,17 @@ public class ErrorLog {
 			numErrors++;
 		} else
 			reportWithSearcher(entry);
+	}
+
+	/**
+	 * Returns the minimal size of a counterexample reported to this logger, or
+	 * -1 if no counterexamples have been logged. The size is the length of the
+	 * depth first search stack at the time of the log event.
+	 * 
+	 * @return the minimal counterexample size
+	 */
+	public int getMinimalCounterexampleSize() {
+		return minimalCounterexampleSize;
 	}
 
 }

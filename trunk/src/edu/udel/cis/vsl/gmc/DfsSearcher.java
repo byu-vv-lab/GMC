@@ -177,6 +177,10 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		stackIsBounded = true;
 	}
 
+	/**
+	 * Sets the depth bound to one less than the current stack size. Also sets
+	 * the "stackIsBounded" bit to true.
+	 */
 	public void restrictDepth() {
 		depthBound = stack.size() - 1;
 		stackIsBounded = true;
@@ -323,7 +327,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			while ((!stackIsBounded || stack.size() < depthBound)
 					&& enabler.hasNext(sequence)) {
 				TRANSITION transition = enabler.peek(sequence);
-				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(currentState, transition);
+				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(
+						currentState, transition);
 				STATE newState = traceStep.getFinalState();
 
 				numTransitions++;
