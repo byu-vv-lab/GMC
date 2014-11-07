@@ -8,7 +8,7 @@ as a generic depth-first search algorithm.
 1. Install a Java 7 SDK if you have not already.  Go to
 http://www.oracle.com/technetwork/java/javase/downloads/ for the
 latest from Oracle.  On linux, you can optionally sudo apt-get install
-openjdk-7-jdk.
+openjdk-7-jdk. 
 
 2. Install Apache ant, if you don't already have it
 (http://ant.apache.org).
