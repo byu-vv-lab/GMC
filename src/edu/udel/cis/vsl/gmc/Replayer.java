@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.PrintStream;
 
 /**
- * TODO: CHANGE THE NAME. This is now more general. It is used to execute the system
- * using any chooser.
+ * TODO: CHANGE THE NAME. This is now more general. It is used to execute the
+ * system using any chooser.
  * 
  * A Replayer is used to replay an execution trace of a transition system. The
  * trace is typically stored in a file created by method
@@ -137,14 +137,14 @@ public class Replayer<STATE, TRANSITION> {
 	}
 
 	public Trace<TRANSITION, STATE>[] play(STATE initialState,
-			TransitionChooser<STATE, TRANSITION> chooser)
+			TransitionChooser<STATE, TRANSITION> chooser, boolean verbose)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
 		STATE[] stateArray = (STATE[]) new Object[] { initialState };
 		boolean[] printArray = new boolean[] { true };
 		String[] names = new String[] { null };
 
-		return play(stateArray, printArray, names, chooser);
+		return play(stateArray, printArray, names, chooser, verbose);
 	}
 
 	/**
@@ -176,8 +176,8 @@ public class Replayer<STATE, TRANSITION> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Trace<TRANSITION, STATE>[] play(STATE states[], boolean print[],
-			String[] names, TransitionChooser<STATE, TRANSITION> chooser)
-			throws MisguidedExecutionException {
+			String[] names, TransitionChooser<STATE, TRANSITION> chooser,
+			boolean verbose) throws MisguidedExecutionException {
 		int step = 0;
 		int numExecutions = states.length;
 		String[] executionNames = new String[1];
@@ -195,8 +195,10 @@ public class Replayer<STATE, TRANSITION> {
 			traces[i] = new Trace<TRANSITION, STATE>(executionNames[i],
 					states[i]);
 		}
-		out.println("\nInitial state:");
-		printStates(step, 1, executionNames, print, states);
+		if (verbose) {
+			out.println("\nInitial state:");
+			printStates(step, 1, executionNames, print, states);
+		}
 		while (true) {
 			boolean hasNewTransition = false;
 			STATE[] newStates = (STATE[]) new Object[numExecutions];
@@ -241,7 +243,8 @@ public class Replayer<STATE, TRANSITION> {
 			if (!hasNewTransition)
 				break;
 			step++;
-			out.print("\nTransition " + step + ": ");
+			if (verbose)
+				out.print("\nTransition " + step + ": ");
 			if (printAllStates)
 				printStates(step, 1, executionNames, print, newStates);
 		}
@@ -251,7 +254,7 @@ public class Replayer<STATE, TRANSITION> {
 
 	public Trace<TRANSITION, STATE>[] play(STATE initialSymbolicState,
 			STATE initialConcreteState, boolean printSymbolicStates,
-			TransitionChooser<STATE, TRANSITION> chooser)
+			TransitionChooser<STATE, TRANSITION> chooser, boolean verbose)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
 		STATE[] stateArray = (STATE[]) new Object[] { initialSymbolicState,
@@ -259,7 +262,7 @@ public class Replayer<STATE, TRANSITION> {
 		boolean[] printArray = new boolean[] { printSymbolicStates, true };
 		String[] names = new String[] { "Symbolic", "Concrete" };
 
-		return play(stateArray, printArray, names, chooser);
+		return play(stateArray, printArray, names, chooser, verbose);
 	}
 
 }
