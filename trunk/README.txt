@@ -66,9 +66,9 @@ You need at least version Kepler (which comes with JUnit 4.11)
 not already.
 
 4. From within Eclipse, select New Project...from SVN.  The archive is
-svn://vsl.cis.udel.edu/gmc.  After entering that, open it up and
-select the "trunk". (It is simplest to just check out the trunk for
-the Eclipse project.)
+svn://vsl.cis.udel.edu/gmc.  After entering that, open it up
+(i.e., "Browse" the repository) and select the "trunk".
+You want to check out the trunk only---not the entire repository.
 
 5. Check out the trunk, and create the project using the New Java
 Project Wizard as usual, naming it "GMC". The .project, .classpath,
