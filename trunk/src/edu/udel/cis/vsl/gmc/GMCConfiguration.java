@@ -112,7 +112,7 @@ public class GMCConfiguration {
 		Option actual = optionMap.get(option.name());
 
 		if (actual == null || !actual.equals(option))
-			throw new IllegalArgumentException("Option " + option
+			throw new IllegalArgumentException("Option " + option.name()
 					+ " is not associated to this configuration");
 	}
 
