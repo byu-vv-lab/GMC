@@ -206,7 +206,26 @@ public class CommandLineParser {
 		}
 	}
 
-	private void processArg(GMCConfiguration config, String arg)
+	/**
+	 * Processes an argument for a GMC section. The argument is a regular
+	 * expression: <code>'-' text ('=' text)? </code> (e.g., -inputB=9,
+	 * -showModel=true) or <code>text</code> (e.g.,
+	 * /Users/test/civl/examples/dinging.cvl), where <code>text</code> is a
+	 * string that doesn't start with '-' and contains no space. The argument
+	 * will be translated into either an option or a free argument of the given
+	 * section. If an entry is specified in an argument and an entry for the
+	 * same option already exists in the section, the old entry is overwritten.
+	 * Similarly for map entries.
+	 * 
+	 * @param section
+	 *            The GMC section that the argument to be processed belongs to.
+	 * @param arg
+	 *            The argument to be processed.
+	 * @throws CommandLineException
+	 *             when the option referenced in the given argument is not
+	 *             defined in the given section.
+	 */
+	private void processArg(GMCSection section, String arg)
 			throws CommandLineException {
 		int length = arg.length();
 
@@ -231,7 +250,7 @@ public class CommandLineParser {
 
 					option = mapOptionMap.get(mapName);
 					value = interpretValue(valueString);
-					config.putMapEntry(option, key, value);
+					section.putMapEntry(option, key, value);
 					return;
 				}
 			}
@@ -240,9 +259,9 @@ public class CommandLineParser {
 				throw new CommandLineException("Unknown command line option "
 						+ optionName);
 			value = parseValue(option, valueString);
-			config.setScalarValue(option, value);
+			section.setScalarValue(option, value);
 		} else {
-			config.addFreeArg(arg);
+			section.addFreeArg(arg);
 		}
 	}
 
@@ -261,9 +280,15 @@ public class CommandLineParser {
 	/**
 	 * Given a collection of strings and a configuration compatible with this
 	 * parser, parses the strings and uses the resulting information to modify
-	 * the configuration. If an entry is specified in an argument and an entry
-	 * for the same option already exists in the config, the old entry is
-	 * overwritten. Similarly for map entries.
+	 * the configuration. The strings are expected to be in the following
+	 * format:
+	 * 
+	 * <pre>
+	 * ('-' text '=' text)* text* (('--' text) ('-' text '=' text)* text*)*
+	 * </pre>
+	 * 
+	 * where <code>text</code> is a string that doesn't start with '-' and
+	 * contains no space.
 	 * 
 	 * @param config
 	 *            a configuration with the same option set as this parser
@@ -276,8 +301,33 @@ public class CommandLineParser {
 	 */
 	public void parse(GMCConfiguration config, Collection<String> args)
 			throws CommandLineException {
-		for (String arg : args)
-			processArg(config, arg);
+		GMCSection section = null;
+		boolean isDefault = false;
+
+		for (String arg : args) {
+			if (arg.startsWith("--")) {
+				if (section != null) {
+					if (isDefault) {
+						config.setAnonymousSection(section);
+						isDefault = false;
+					} else
+						config.addSection(section);
+				}
+				section = new GMCSection(config, arg.substring(2));
+				continue;
+			}
+			if (section == null) {
+				section = new GMCSection(config,
+						GMCConfiguration.ANONYMOUS_SECTION);
+				isDefault = true;
+			}
+			processArg(section, arg);
+		}
+		if (section != null)
+			if (isDefault)
+				config.setAnonymousSection(section);
+			else
+				config.addSection(section);
 	}
 
 	/**
