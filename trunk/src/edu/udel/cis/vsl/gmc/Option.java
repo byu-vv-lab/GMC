@@ -1,6 +1,7 @@
 package edu.udel.cis.vsl.gmc;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 /**
@@ -13,7 +14,7 @@ import java.util.LinkedHashMap;
  * @author Stephen F. Siegel, University of Delaware
  * 
  */
-public class Option {
+public class Option implements Serializable{
 
 	/**
 	 * The types of option. A MAP indicates a map from Strings to Objects, where
