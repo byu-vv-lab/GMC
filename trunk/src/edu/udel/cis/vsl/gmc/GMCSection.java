@@ -1,7 +1,9 @@
 package edu.udel.cis.vsl.gmc;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,7 +58,7 @@ import edu.udel.cis.vsl.gmc.Option.OptionType;
  * @author Manchun Zheng (zmanchun)
  * 
  */
-public class GMCSection {
+public class GMCSection implements Serializable{
 
 	// Instance fields...
 
@@ -94,6 +96,7 @@ public class GMCSection {
 	public GMCSection(String name) {
 		this.name = name;
 	}
+
 
 	/**
 	 * Constructs a new instance of GMCSection with the given GMCConfiguration
