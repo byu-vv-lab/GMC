@@ -1,6 +1,7 @@
 package edu.udel.cis.vsl.gmc;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,7 +54,7 @@ import java.util.Map;
  * @author Stephen F. Siegel
  * 
  */
-public class GMCConfiguration {
+public class GMCConfiguration implements Serializable{
 
 	// Instance fields...
 
@@ -116,9 +117,9 @@ public class GMCConfiguration {
 	void checkContainsOption(Option option) {
 		Option actual = optionMap.get(option.name());
 
-		if (actual == null || !actual.equals(option))
-			throw new IllegalArgumentException("Option " + option.name()
-					+ " is not associated to this configuration");
+		//if (actual == null || !actual.equals(option))
+		//	throw new IllegalArgumentException("Option " + option.name()
+		//			+ " is not associated to this configuration");
 	}
 
 	/**
