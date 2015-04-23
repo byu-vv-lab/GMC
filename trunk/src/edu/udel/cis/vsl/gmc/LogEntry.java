@@ -148,7 +148,7 @@ public abstract class LogEntry implements Comparable<LogEntry> {
 	 *            stream to which to print
 	 */
 	public void print(PrintStream out) {
-		out.println("Error " + id + "[length=" + size + ", file=" + traceFile
+		out.println("Violation " + id + "[length=" + size + ", file=" + traceFile
 				+ "]:");
 		printBody(out);
 		out.flush();
