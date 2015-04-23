@@ -263,11 +263,11 @@ public class ErrorLog {
 		out.println("Directory.......... " + directory);
 		out.println("Date............... " + date);
 		out.println("Trace ID........... " + entry.getId());
-		out.println("Error number....... " + numErrors);
+		out.println("Violation number....... " + numErrors);
 		out.println();
-		out.println("== Begin Error Message == ");
+		out.println("== Begin Violation Message == ");
 		entry.print(out);
-		out.println("== End Error Message == ");
+		out.println("== End Violation Message == ");
 		out.println();
 		out.println("== Begin Configuration ==");
 		entry.getConfiguration().print(out);
@@ -296,7 +296,7 @@ public class ErrorLog {
 		if (minimalCounterexampleSize < 0 || length < minimalCounterexampleSize) {
 			minimalCounterexampleSize = length;
 		}
-		out.println("Error " + numErrors + " encountered at depth " + length
+		out.println("\nViolation " + numErrors + " encountered at depth " + length
 				+ ":");
 		entry.printBody(out);
 		if (oldEntry != null) {
