@@ -59,6 +59,11 @@ public class GMCConfiguration implements Serializable{
 	// Instance fields...
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6956568041621532151L;
+
+	/**
 	 * The reserved name of the anonymous GMCSection of a configuration.
 	 */
 	public static final String ANONYMOUS_SECTION = "anonymous";
@@ -117,9 +122,9 @@ public class GMCConfiguration implements Serializable{
 	void checkContainsOption(Option option) {
 		Option actual = optionMap.get(option.name());
 
-		//if (actual == null || !actual.equals(option))
-		//	throw new IllegalArgumentException("Option " + option.name()
-		//			+ " is not associated to this configuration");
+		if (actual == null || !actual.equals(option))
+			throw new IllegalArgumentException("Option " + option.name()
+		+ " is not associated to this configuration");
 	}
 
 	/**

@@ -14,7 +14,12 @@ import java.util.LinkedHashMap;
  * @author Stephen F. Siegel, University of Delaware
  * 
  */
-public class Option implements Serializable{
+public class Option implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -429399824898015020L;
 
 	/**
 	 * The types of option. A MAP indicates a map from Strings to Objects, where
@@ -35,6 +40,9 @@ public class Option implements Serializable{
 
 	/** The default value for this option */
 	private Object defaultValue;
+
+	private int hashCode = -1;
+	private boolean hashed = false;
 
 	/**
 	 * Constructs new Option with given fields.
@@ -144,5 +152,61 @@ public class Option implements Serializable{
 	public void print(PrintStream out) {
 		out.println("  " + toString());
 		out.flush();
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof Option) {
+			Option that = (Option) object;
+
+			return this.name.equals(that.name);
+			// && this.description.equals(that.description())
+			// && this.type.equals(that.type)
+			// && (this.defaultValue != null ? this.defaultValue
+			// .equals(that.defaultValue) : true);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		// boolean debug = false;
+		// if (name.equals("showProgram"))
+		// debug = true;
+		if (!this.hashed) {
+			// final int prime = 31;
+			// hashCode = 1;
+			// hashCode = prime * hashCode
+			// + ((name == null) ? 0 : name.hashCode());
+			// if (debug)
+			// System.out.println("Hashcode of " + name + " is: "
+			// + name.hashCode());
+			// hashCode = prime * hashCode
+			// + ((description == null) ? 0 : description.hashCode());
+			// if (debug)
+			// System.out.println("Hashcode of " + description + " is: "
+			// + description.hashCode());
+			// hashCode = prime * hashCode
+			// + ((defaultValue == null) ? 0 : defaultValue.hashCode());
+			// if (debug && defaultValue != null)
+			// System.out.println("Hashcode of " + defaultValue + " is: "
+			// + defaultValue.hashCode());
+			// hashCode = prime * hashCode
+			// + ((type == null) ? 0 : type.hashCode());
+			// if (debug)
+			// System.out.println("Hashcode of " + type + " is: "
+			// + type.hashCode());
+			this.hashCode = name.hashCode();
+			this.hashed = true;
+		}
+		//
+		// if (!this.hashed) {
+		// this.hashCode = name.hashCode() ^ description.hashCode()
+		// ^ type.hashCode();
+		// if (this.defaultValue != null)
+		// this.hashCode = this.hashCode ^ this.defaultValue.hashCode();
+		// this.hashed = true;
+		// }
+		return this.hashCode;
 	}
 }
