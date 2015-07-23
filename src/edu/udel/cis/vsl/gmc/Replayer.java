@@ -244,11 +244,11 @@ public class Replayer<STATE, TRANSITION> {
 				break;
 			step++;
 			if (verbose)
-				out.print("\nTransition " + step + ": ");
+				out.print("\nStep " + step + ": ");
 			if (printAllStates)
 				printStates(step, 1, executionNames, print, newStates);
 		}
-		out.println("Trace ends after " + step + " transitions.");
+		out.println("Trace ends after " + step + " trace steps.");
 		return traces;
 	}
 
